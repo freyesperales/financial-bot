@@ -1,0 +1,57 @@
+# ── Python ────────────────────────────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+env/
+ENV/
+.venv/
+*.egg-info/
+
+# ── Base de datos (contiene datos personales) ─────────────────────────────────
+trading_bot.db
+trading_bot.db-shm
+trading_bot.db-wal
+*.db
+
+# ── Análisis guardado ─────────────────────────────────────────────────────────
+last_analysis.parquet
+last_analysis.pkl
+last_analysis_meta.json
+
+# ── Caché (fundamentales, dataset ML, modelos) ────────────────────────────────
+cache/
+
+# ── Logs ──────────────────────────────────────────────────────────────────────
+logs/
+*.log
+
+# ── Herramientas ──────────────────────────────────────────────────────────────
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.pytest_cache/
+.coverage
+htmlcov/
+
+# ── OS ────────────────────────────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ── Sensible ──────────────────────────────────────────────────────────────────
+*.env
+.env
+config_secret.py
+ia_test.json
+
+# ── Claude Code (interno) ─────────────────────────────────────────────────────
+.claude/
+
+# ── Archivos de señales viejos ────────────────────────────────────────────────
+señales.csv
+resumen_diario.csv

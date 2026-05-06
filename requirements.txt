@@ -1,0 +1,11 @@
+yfinance>=0.2.40
+pandas>=2.0.0
+pandas-ta>=0.3.14b
+pyarrow>=14.0.0
+pytz>=2024.1
+tzlocal>=5.0.0
+winotify>=1.1.0
+# plyer es opcional como fallback
+plyer>=2.1.0
+lightgbm>=4.0.0
+scikit-learn>=1.3.0
