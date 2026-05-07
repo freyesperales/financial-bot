@@ -267,6 +267,7 @@ class InvestmentReportGUI(JournalTabMixin, AlertsMixin, PortfolioRiskTabMixin, M
             'portfolio_n': 12,
             'max_corr': 0.70,
             'force_download': True,
+            'claude_exe': '',
         }
 
         self._build_ui()
@@ -3404,6 +3405,91 @@ class InvestmentReportGUI(JournalTabMixin, AlertsMixin, PortfolioRiskTabMixin, M
         StyledButton(card, '  Guardar configuración  ',
                      self._save_settings, color=COLORS['primary']).grid(
                      row=5, column=0, columnspan=2, sticky='w', pady=(20, 0))
+
+        # ── Claude CLI ──────────────────────────────────────────────
+        claude_card = tk.Frame(p, bg=COLORS['surface'], padx=30, pady=20)
+        claude_card.pack(padx=40, pady=(0, 10), fill=tk.X)
+
+        tk.Label(claude_card, text='Claude IA — Ruta del ejecutable',
+                 bg=COLORS['surface'], fg=COLORS['text'],
+                 font=('Segoe UI', 11, 'bold')).grid(
+                 row=0, column=0, columnspan=3, sticky='w', pady=(0, 12))
+
+        import claude_analyzer as _ca
+        detected = _ca.CLAUDE_EXE or ''
+        self._cfg_claude_path = tk.StringVar(
+            value=self.cfg.get('claude_exe') or detected)
+
+        path_entry = tk.Entry(claude_card, textvariable=self._cfg_claude_path,
+                              bg=COLORS['surface2'], fg=COLORS['text'],
+                              insertbackground=COLORS['text'],
+                              relief='flat', bd=4, width=52, font=('Segoe UI', 9))
+        path_entry.grid(row=1, column=0, sticky='w', padx=(0, 8))
+
+        def _browse_claude():
+            from tkinter import filedialog
+            p_ = filedialog.askopenfilename(
+                title='Seleccionar ejecutable de Claude',
+                filetypes=[('Ejecutable', '*.exe *.cmd *.EXE'), ('Todos', '*')],
+            )
+            if p_:
+                self._cfg_claude_path.set(p_)
+
+        tk.Button(claude_card, text='Examinar…',
+                  bg=COLORS['surface2'], fg=COLORS['text'],
+                  font=('Segoe UI', 9), relief='flat', padx=10,
+                  command=_browse_claude).grid(row=1, column=1, padx=(0, 6))
+
+        self._claude_status_lbl = tk.Label(
+            claude_card,
+            text='✔ Detectado' if detected else '✘ No encontrado',
+            bg=COLORS['surface'],
+            fg=COLORS['success'] if detected else COLORS['danger'],
+            font=('Segoe UI', 9))
+        self._claude_status_lbl.grid(row=1, column=2, sticky='w')
+
+        def _apply_claude_path():
+            import claude_analyzer as _ca2
+            import os
+            new_path = self._cfg_claude_path.get().strip()
+            if new_path and not os.path.isfile(new_path):
+                messagebox.showerror('Ruta inválida',
+                                     f'No se encontró el archivo:\n{new_path}')
+                return
+            _ca2.CLAUDE_EXE = new_path or None
+            _ca2.CLAUDE_AVAILABLE = bool(new_path)
+            self.cfg['claude_exe'] = new_path
+            self._claude_available = _ca2.CLAUDE_AVAILABLE
+            if self._claude_analyzer:
+                self._claude_analyzer.available  = _ca2.CLAUDE_AVAILABLE
+                self._claude_analyzer.exe_path   = new_path
+            color = COLORS['success'] if new_path else COLORS['danger']
+            txt   = f'✔ Guardado: {os.path.basename(new_path)}' if new_path else '✘ Sin ruta'
+            self._claude_status_lbl.config(text=txt, fg=color)
+            self._log('ok' if new_path else 'warn',
+                      f"Claude exe: {new_path or '(no configurado)'}")
+            # Refrescar botón de la pestaña IA
+            try:
+                ia_col = COLORS['success'] if self._claude_available else COLORS['surface3']
+                ia_fg  = 'white' if self._claude_available else COLORS['text_dim']
+                self.ia_btn.config(
+                    bg=ia_col, fg=ia_fg,
+                    cursor='hand2' if self._claude_available else 'arrow',
+                    state='normal' if self._claude_available else 'disabled')
+            except Exception:
+                pass
+
+        tk.Button(claude_card, text='Aplicar',
+                  bg=COLORS['primary'], fg='white',
+                  font=('Segoe UI', 9, 'bold'), relief='flat', padx=12,
+                  command=_apply_claude_path).grid(
+                  row=2, column=0, sticky='w', pady=(10, 0))
+
+        tk.Label(claude_card,
+                 text='Ruta a claude.exe / claude.EXE / claude.cmd — déjala vacía para detección automática.',
+                 bg=COLORS['surface'], fg=COLORS['text_muted'],
+                 font=('Segoe UI', 8)).grid(
+                 row=3, column=0, columnspan=3, sticky='w', pady=(4, 0))
 
         # ── Auto-refresh scheduler ──────────────────────────────────
         sched_card = tk.Frame(p, bg=COLORS['surface'], padx=30, pady=20)
