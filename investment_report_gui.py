@@ -245,7 +245,9 @@ class InvestmentReportGUI(JournalTabMixin, AlertsMixin, PortfolioRiskTabMixin, M
             self._claude_analyzer = ClaudeAnalyzer()
             self._claude_available = CLAUDE_AVAILABLE
             self._claude_mode_label = self._claude_analyzer.mode_label()
-        except Exception:
+        except Exception as _claude_init_err:
+            import traceback as _tb
+            log.warning("Claude init failed: %s\n%s", _claude_init_err, _tb.format_exc())
             self._claude_analyzer  = None
             self._claude_available = False
             self._claude_mode_label = 'No disponible'

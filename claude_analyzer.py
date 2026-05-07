@@ -50,17 +50,32 @@ def _find_claude_exe() -> str | None:
     if found:
         return found
 
-    # 3) Verificar rutas absolutas directamente
+    # 3) Verificar rutas absolutas directamente (también variantes de extensión)
     candidates = [
         os.path.join(home, '.local', 'bin', 'claude.exe'),
+        os.path.join(home, '.local', 'bin', 'claude.EXE'),
+        os.path.join(home, '.local', 'bin', 'claude.cmd'),
         os.path.join(home, '.local', 'bin', 'claude'),
         os.path.join(home, 'AppData', 'Roaming', 'npm', 'claude.cmd'),
+        os.path.join(home, 'AppData', 'Roaming', 'npm', 'claude.exe'),
         os.path.join(home, 'AppData', 'Roaming', 'npm', 'claude'),
+        os.path.join(home, 'AppData', 'Local', 'Programs', 'Claude', 'claude.exe'),
         r'C:\Program Files\Anthropic\Claude\claude.exe',
     ]
     for path in candidates:
         if os.path.isfile(path):
             return path
+
+    # 4) Último recurso: glob en .local/bin y AppData/Roaming/npm
+    import glob
+    for pattern in [
+        os.path.join(home, '.local', 'bin', 'claude*'),
+        os.path.join(home, 'AppData', 'Roaming', 'npm', 'claude*'),
+    ]:
+        matches = [p for p in glob.glob(pattern)
+                   if os.path.isfile(p) and not p.endswith('.ps1')]
+        if matches:
+            return matches[0]
 
     return None
 
