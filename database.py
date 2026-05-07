@@ -682,6 +682,14 @@ class TradingDatabase:
         cursor.execute(f"SELECT COUNT(*) FROM {table}")
         return cursor.fetchone()[0]
 
+    def get_table_count_for_symbol(self, symbol):
+        """Contar filas de precios para un símbolo específico."""
+        conn = self.connect()
+        cursor = conn.cursor()
+        cursor.execute("SELECT COUNT(*) FROM precios WHERE symbol = ?", (symbol,))
+        row = cursor.fetchone()
+        return row[0] if row else 0
+
 
 # ─────────────────────────────────────────────
 #  EJEMPLO DE USO

@@ -3619,39 +3619,44 @@ class InvestmentReportGUI(JournalTabMixin, AlertsMixin, PortfolioRiskTabMixin, M
 
                 self._log('info', 'Descargando datos históricos (modo incremental)...')
 
+                MIN_ROWS = 100  # mínimo de barras para análisis técnico
+
                 for i, symbol in enumerate(symbols, 1):
                     if not self.running:
                         break
                     try:
                         last_date = self.db.get_last_date(symbol)
-                        if last_date is not None:
-                            if last_date >= today_str:
-                                # Datos ya al día — omitir descarga
-                                skipped += 1
-                            else:
-                                # Descarga incremental desde el día siguiente
-                                start_dt = (
-                                    datetime.strptime(last_date, '%Y-%m-%d') + timedelta(days=1)
-                                ).strftime('%Y-%m-%d')
-                                df_new = yf.download(
-                                    symbol, start=start_dt, interval='1d',
-                                    progress=False, auto_adjust=True
-                                )
-                                if df_new is not None and not df_new.empty:
-                                    if isinstance(df_new.columns, pd.MultiIndex):
-                                        df_new.columns = [col[0] for col in df_new.columns]
-                                    df_new.columns = [c.lower() for c in df_new.columns]
-                                    df_new = df_new.dropna()
-                                    if not df_new.empty:
-                                        self.db.append_precios(df_new, symbol)
-                                success += 1
-                        else:
-                            # Sin datos previos — descarga completa
+                        row_count = self.db.get_table_count_for_symbol(symbol)
+
+                        needs_full = (last_date is None) or (row_count < MIN_ROWS)
+
+                        if needs_full:
+                            # Histórico incompleto o inexistente — descarga completa
                             df = dl.get_max_historical_data(symbol, interval='1d', force_download=True)
                             if df is not None and len(df) > 0:
                                 success += 1
                             else:
                                 failed.append(symbol)
+                        elif last_date >= today_str:
+                            # Datos ya al día — omitir descarga
+                            skipped += 1
+                        else:
+                            # Descarga incremental desde el día siguiente
+                            start_dt = (
+                                datetime.strptime(last_date, '%Y-%m-%d') + timedelta(days=1)
+                            ).strftime('%Y-%m-%d')
+                            df_new = yf.download(
+                                symbol, start=start_dt, interval='1d',
+                                progress=False, auto_adjust=True
+                            )
+                            if df_new is not None and not df_new.empty:
+                                if isinstance(df_new.columns, pd.MultiIndex):
+                                    df_new.columns = [col[0] for col in df_new.columns]
+                                df_new.columns = [c.lower() for c in df_new.columns]
+                                df_new = df_new.dropna()
+                                if not df_new.empty:
+                                    self.db.append_precios(df_new, symbol)
+                            success += 1
                     except Exception:
                         failed.append(symbol)
                     pct = 5 + int((i / total) * 40)
@@ -3738,14 +3743,24 @@ class InvestmentReportGUI(JournalTabMixin, AlertsMixin, PortfolioRiskTabMixin, M
         #        problemas de concurrencia con SQLite) ──────────────────────
         self._progress(50, 'Cargando datos de base de datos...')
         symbol_dfs = {}
+        n_in_db = 0
         for symbol in symbols:
             df = self.db.get_precios(symbol)
-            if not df.empty and len(df) >= 100:
-                symbol_dfs[symbol] = df
+            if not df.empty:
+                n_in_db += 1
+                if len(df) >= 100:
+                    symbol_dfs[symbol] = df
 
         valid_symbols = list(symbol_dfs.keys())
         n_valid = len(valid_symbols)
-        self._log('info', f'{n_valid} símbolos con datos suficientes — analizando en paralelo...')
+        self._log('info', f'DB: {n_in_db}/{len(symbols)} símbolos con datos, {n_valid} con ≥100 filas')
+
+        if n_valid == 0:
+            if n_in_db == 0:
+                self._log('err', 'La base de datos está vacía. Ve a la pestaña "Datos" y descarga el histórico primero.')
+            else:
+                self._log('err', f'{n_in_db} símbolos en DB pero ninguno tiene ≥100 barras. Descarga datos históricos completos.')
+            return pd.DataFrame()
 
         # ── 2) Contador thread-safe para progreso ──────────────────────────
         completed_count = [0]
@@ -4010,7 +4025,7 @@ class InvestmentReportGUI(JournalTabMixin, AlertsMixin, PortfolioRiskTabMixin, M
         # ── 4) Ejecutar en paralelo ────────────────────────────────────────
         # max_workers 10: equilibrio entre velocidad y límites de yfinance
         results = []
-        max_workers = min(10, n_valid)
+        max_workers = max(1, min(10, n_valid))
         with ThreadPoolExecutor(max_workers=max_workers) as executor:
             futures = {executor.submit(analyze_one, sym): sym for sym in valid_symbols}
             for future in as_completed(futures):
