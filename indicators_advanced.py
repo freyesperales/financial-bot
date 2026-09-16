@@ -215,7 +215,7 @@ class AdvancedIndicators:
         df_copy['price_bin'] = pd.cut(df_copy['close'], bins=bins)
 
         # Sumar volumen por bin
-        volume_by_price = df_copy.groupby('price_bin')['volume'].sum()
+        volume_by_price = df_copy.groupby('price_bin', observed=False)['volume'].sum()
 
         # Encontrar POC (Point of Control) - precio con mayor volumen
         poc_bin = volume_by_price.idxmax()

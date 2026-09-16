@@ -526,6 +526,11 @@ class StockAnalyzer:
             risk_data     = self.calculate_risk_metrics(df, spy_rets=spy_daily_rets)
             bt_data       = self.calculate_backtest(df)
 
+            # Cambios de medio plazo (para screener horizonte 6 meses)
+            _c = df.sort_values('timestamp')['close'].reset_index(drop=True)
+            change_60d  = float((_c.iloc[-1] / _c.iloc[-61]  - 1) * 100) if len(_c) >= 61  else None
+            change_252d = float((_c.iloc[-1] / _c.iloc[-253] - 1) * 100) if len(_c) >= 253 else None
+
             result = {
                 'symbol': symbol,
                 'sector': get_sector(symbol),
@@ -533,9 +538,18 @@ class StockAnalyzer:
                 'price': analysis['price'],
                 'change_5d': analysis['change_5d'],
                 'change_20d': analysis['change_20d'],
+                'change_60d': change_60d,
+                'change_252d': change_252d,
                 'rsi': analysis['rsi'],
                 'support_52w': analysis['support_52w'],
                 'resistance_52w': analysis['resistance_52w'],
+                # Indicadores raw para la señal ML (mismas semánticas que ml_dataset)
+                'atr_pct':      analysis['atr_pct'],
+                'bb_position':  analysis['bb_position'],
+                'ema_9':        analysis['ema_9'],
+                'ema_21':       analysis['ema_21'],
+                'ema_50':       analysis['ema_50'],
+                'vol_ratio_20': analysis['vol_ratio'],  # vol/MA20 (el 'vol_ratio' de abajo es MA7/MA60)
                 'last_update': last_date.strftime('%Y-%m-%d') if last_date else 'N/A',
                 'data_freshness': freshness_status,
                 # Volumen MA
@@ -1358,22 +1372,36 @@ class StockAnalyzer:
     #  ETAPA 4: FUERZA RELATIVA vs S&P 500 (SPY)
     # ─────────────────────────────────────────────
 
-    @staticmethod
-    def _get_spy_returns():
+    def _get_spy_returns(self):
         """
-        Descarga SPY y calcula retornos acumulados a 20d, 60d y 252d.
+        Retornos acumulados de SPY a 20d, 60d y 252d.
+
+        Usa la DB local si el dato es de hoy/ayer (misma fuente que los activos,
+        evita el sesgo intradía en la Fuerza Relativa); si no, descarga en vivo.
         Se llama una sola vez antes del bucle principal.
         """
-        import yfinance as yf
+        close = None
         try:
-            df = yf.download('SPY', period='2y', interval='1d', progress=False)
-            if df.empty:
-                return None
-            if isinstance(df.columns, pd.MultiIndex):
-                df.columns = [c[0] for c in df.columns]
-            df.columns = [c.lower() for c in df.columns]
-            df = df.sort_index()
-            close = df['close']
+            df_db = self.db.get_precios('SPY')
+            if not df_db.empty:
+                df_db = df_db.sort_values('timestamp')
+                last = pd.to_datetime(df_db['timestamp'].iloc[-1])
+                if (pd.Timestamp.now() - last).days <= 1:
+                    close = df_db['close'].reset_index(drop=True)
+        except Exception:
+            close = None
+
+        try:
+            if close is None:
+                import yfinance as yf
+                df = yf.download('SPY', period='2y', interval='1d', progress=False)
+                if df.empty:
+                    return None
+                if isinstance(df.columns, pd.MultiIndex):
+                    df.columns = [c[0] for c in df.columns]
+                df.columns = [c.lower() for c in df.columns]
+                df = df.sort_index()
+                close = df['close']
             return {
                 'close': close,
                 'ret_20d':  float((close.iloc[-1] / close.iloc[-21] - 1) * 100) if len(close) >= 21  else None,

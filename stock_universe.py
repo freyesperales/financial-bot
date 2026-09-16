@@ -36,6 +36,19 @@ STOCK_UNIVERSE = {
         "PANW",   # Palo Alto Networks
         "CRWD",   # CrowdStrike
         "NET",    # Cloudflare
+        "PLTR",   # Palantir Technologies
+        "INTU",   # Intuit
+        "KLAC",   # KLA Corp (semis equipment)
+        "LRCX",   # Lam Research (semis equipment)
+        "ANET",   # Arista Networks
+        # ── Europa (ADRs en NASDAQ/NYSE) ──
+        "ASML",   # ASML Holding (Países Bajos) — litografía EUV
+        "SAP",    # SAP SE (Alemania) — software empresarial
+        "STM",    # STMicroelectronics (FR/IT) — semis
+        "ARM",    # Arm Holdings (Reino Unido) — arquitectura chips
+        "NOK",    # Nokia (Finlandia)
+        "ERIC",   # Ericsson (Suecia)
+        "LOGI",   # Logitech (Suiza)
     ],
 
     # Financiero (15)
@@ -55,6 +68,15 @@ STOCK_UNIVERSE = {
         "COF",    # Capital One
         "USB",    # US Bancorp
         "PGR",    # Progressive Insurance
+        # ── Europa (ADRs en NYSE) ──
+        "SAN",    # Banco Santander (España)
+        "BBVA",   # BBVA (España)
+        "ING",    # ING Groep (Países Bajos)
+        "UBS",    # UBS Group (Suiza)
+        "HSBC",   # HSBC Holdings (Reino Unido)
+        "BCS",    # Barclays (Reino Unido)
+        "DB",     # Deutsche Bank (Alemania)
+        "LYG",    # Lloyds Banking Group (Reino Unido)
     ],
 
     # Salud (15)
@@ -74,6 +96,15 @@ STOCK_UNIVERSE = {
         "VRTX",   # Vertex Pharmaceuticals
         "REGN",   # Regeneron
         "MDT",    # Medtronic
+        # ── Europa (ADRs en NYSE/NASDAQ) ──
+        "NVO",    # Novo Nordisk (Dinamarca) — GLP-1/obesidad
+        "AZN",    # AstraZeneca (Reino Unido)
+        "NVS",    # Novartis (Suiza)
+        "SNY",    # Sanofi (Francia)
+        "GSK",    # GSK (Reino Unido)
+        "ALC",    # Alcon (Suiza) — oftalmología
+        "ARGX",   # argenx (Bélgica/PB) — biotech
+        "BNTX",   # BioNTech (Alemania)
     ],
 
     # Consumo Discrecional (12)
@@ -90,6 +121,12 @@ STOCK_UNIVERSE = {
         "BKNG",   # Booking Holdings
         "GM",     # General Motors
         "F",      # Ford
+        "ABNB",   # Airbnb
+        # ── Europa (ADRs en NYSE/NASDAQ) ──
+        "RACE",   # Ferrari (Italia)
+        "STLA",   # Stellantis (IT/FR/PB)
+        "FLUT",   # Flutter Entertainment (Irlanda) — apuestas online
+        "RYAAY",  # Ryanair (Irlanda)
     ],
 
     # Consumo Básico (8)
@@ -102,6 +139,11 @@ STOCK_UNIVERSE = {
         "MDLZ",   # Mondelez
         "CL",     # Colgate-Palmolive
         "KHC",    # Kraft Heinz
+        # ── Europa (ADRs en NYSE) ──
+        "UL",     # Unilever (Reino Unido/PB)
+        "DEO",    # Diageo (Reino Unido) — licores premium
+        "BUD",    # AB InBev (Bélgica) — cerveza
+        "BTI",    # British American Tobacco (Reino Unido)
     ],
 
     # Energía — Petróleo, Gas & Uranio (15)
@@ -123,6 +165,12 @@ STOCK_UNIVERSE = {
         "NXE",    # NexGen Energy
         "UUUU",   # Energy Fuels Inc.
         "DNN",    # Denison Mines
+        # ── Europa (ADRs en NYSE) ──
+        "SHEL",   # Shell (Reino Unido)
+        "TTE",    # TotalEnergies (Francia)
+        "BP",     # BP (Reino Unido)
+        "E",      # Eni (Italia)
+        "EQNR",   # Equinor (Noruega)
     ],
 
     # Comunicaciones (8)
@@ -151,6 +199,11 @@ STOCK_UNIVERSE = {
         "FDX",    # FedEx
         "WM",     # Waste Management
         "ETN",    # Eaton
+        "UBER",   # Uber Technologies (GICS: transporte)
+        # ── Europa (ADRs en NYSE) ──
+        "CRH",    # CRH plc (Irlanda) — materiales construcción
+        "AER",    # AerCap (Irlanda) — leasing aeronaves
+        "RELX",   # RELX (Reino Unido) — información profesional
     ],
 
     # Materiales (5)
@@ -160,6 +213,8 @@ STOCK_UNIVERSE = {
         "NEM",    # Newmont Mining
         "FCX",    # Freeport-McMoRan (Cobre)
         "NUE",    # Nucor (Acero)
+        # ── Europa (ADR en NYSE) ──
+        "RIO",    # Rio Tinto (Reino Unido) — minería diversificada
     ],
 
     # Real Estate / REITs (5)
@@ -208,8 +263,40 @@ ETF_UNIVERSE = {
         "XLV",    # Health Care Select Sector SPDR
         "XLY",    # Consumer Discretionary Select Sector SPDR
         "XLI",    # Industrials Select Sector SPDR
+        "XLP",    # Consumer Staples Select Sector SPDR
+        "XLU",    # Utilities Select Sector SPDR
+        "XLB",    # Materials Select Sector SPDR
+        "XLC",    # Communication Services Select Sector SPDR
+        "XLRE",   # Real Estate Select Sector SPDR
         "SOXX",   # iShares Semiconductor ETF
         "SMH",    # VanEck Semiconductor ETF
+    ],
+
+    # ETFs de Europa (10)
+    # Exposición a mercados europeos con ETFs listados en NYSE (compatibles N26)
+    "ETF - Europa": [
+        "VGK",    # Vanguard FTSE Europe — Europa desarrollada amplia
+        "EZU",    # iShares MSCI Eurozone — solo zona euro
+        "FEZ",    # SPDR Euro Stoxx 50 — blue chips de la eurozona
+        "IEUR",   # iShares Core MSCI Europe — Europa amplia bajo coste
+        "HEDJ",   # WisdomTree Europe Hedged Equity — cubierto a USD
+        "EWG",    # iShares MSCI Germany — Alemania
+        "EWQ",    # iShares MSCI France — Francia
+        "EWP",    # iShares MSCI Spain — España
+        "EWU",    # iShares MSCI United Kingdom — Reino Unido
+        "EWL",    # iShares MSCI Switzerland — Suiza
+    ],
+
+    # ETFs de Dividendos y Factores (7)
+    # Estrategias defensivas y factor investing
+    "ETF - Dividendos & Factor": [
+        "SCHD",   # Schwab US Dividend Equity — dividendos de calidad
+        "VIG",    # Vanguard Dividend Appreciation — dividendos crecientes
+        "DGRO",   # iShares Core Dividend Growth
+        "MTUM",   # iShares MSCI USA Momentum Factor
+        "QUAL",   # iShares MSCI USA Quality Factor
+        "USMV",   # iShares MSCI USA Min Volatility — baja volatilidad
+        "COWZ",   # Pacer US Cash Cows 100 — free cash flow yield
     ],
 
     # ETFs Temáticos / Innovación (11)
@@ -431,6 +518,80 @@ STOCK_INFO = {
     "AGG":   {"name": "iShares Core US Aggregate Bond ETF","isin": "US4642872422"},
     "HYG":   {"name": "iShares iBoxx High Yield Corp Bond","isin": "US4642885135"},
     "TIP":   {"name": "iShares TIPS Bond ETF",            "isin": "US4642871762"},
+    # ── Nuevas alternativas USA ──────────────────────────────────────────────
+    "PLTR":  {"name": "Palantir Technologies Inc.",       "isin": "US69608A1088"},
+    "INTU":  {"name": "Intuit Inc.",                      "isin": "US4612021034"},
+    "KLAC":  {"name": "KLA Corp.",                        "isin": "US4824801009"},
+    "LRCX":  {"name": "Lam Research Corp.",               "isin": "US5128071082"},
+    "ANET":  {"name": "Arista Networks Inc.",             "isin": "US0404132054"},
+    "ABNB":  {"name": "Airbnb Inc.",                      "isin": "US0090661010"},
+    "UBER":  {"name": "Uber Technologies Inc.",           "isin": "US90353T1007"},
+    # ── Europa: ADRs / listados US (ISIN del subyacente; verificar en N26) ──
+    "ASML":  {"name": "ASML Holding N.V. (ADR)",          "isin": "NL0010273215"},
+    "SAP":   {"name": "SAP SE (ADR)",                     "isin": "DE0007164600"},
+    "STM":   {"name": "STMicroelectronics N.V.",          "isin": "NL0000226223"},
+    "ARM":   {"name": "Arm Holdings plc (ADR)",           "isin": "US0420682058"},
+    "NOK":   {"name": "Nokia Oyj (ADR)",                  "isin": "FI0009000681"},
+    "ERIC":  {"name": "Telefonaktiebolaget LM Ericsson (ADR)", "isin": "SE0000108656"},
+    "LOGI":  {"name": "Logitech International S.A.",      "isin": "CH0025751329"},
+    "SAN":   {"name": "Banco Santander S.A. (ADR)",       "isin": "ES0113900J37"},
+    "BBVA":  {"name": "BBVA S.A. (ADR)",                  "isin": "ES0113211835"},
+    "ING":   {"name": "ING Groep N.V. (ADR)",             "isin": "NL0011821202"},
+    "UBS":   {"name": "UBS Group AG",                     "isin": "CH0244767585"},
+    "HSBC":  {"name": "HSBC Holdings plc (ADR)",          "isin": "GB0005405286"},
+    "BCS":   {"name": "Barclays plc (ADR)",               "isin": "GB0031348658"},
+    "DB":    {"name": "Deutsche Bank AG",                 "isin": "DE0005140008"},
+    "LYG":   {"name": "Lloyds Banking Group plc (ADR)",   "isin": "GB0008706128"},
+    "NVO":   {"name": "Novo Nordisk A/S (ADR)",           "isin": "DK0062498333"},
+    "AZN":   {"name": "AstraZeneca plc (ADR)",            "isin": "GB0009895292"},
+    "NVS":   {"name": "Novartis AG (ADR)",                "isin": "CH0012005267"},
+    "SNY":   {"name": "Sanofi S.A. (ADR)",                "isin": "FR0000120578"},
+    "GSK":   {"name": "GSK plc (ADR)",                    "isin": "GB00BN7SWP63"},
+    "ALC":   {"name": "Alcon Inc.",                       "isin": "CH0432492467"},
+    "ARGX":  {"name": "argenx SE (ADR)",                  "isin": "NL0010832176"},
+    "BNTX":  {"name": "BioNTech SE (ADR)",                "isin": "US09075V1026"},
+    "RACE":  {"name": "Ferrari N.V.",                     "isin": "NL0011585146"},
+    "STLA":  {"name": "Stellantis N.V.",                  "isin": "NL00150001Q9"},
+    "FLUT":  {"name": "Flutter Entertainment plc",        "isin": "IE00BWT6H894"},
+    "RYAAY": {"name": "Ryanair Holdings plc (ADR)",       "isin": "IE00BYTBXV33"},
+    "UL":    {"name": "Unilever plc (ADR)",               "isin": "GB00B10RZP78"},
+    "DEO":   {"name": "Diageo plc (ADR)",                 "isin": "GB0002374006"},
+    "BUD":   {"name": "Anheuser-Busch InBev (ADR)",       "isin": "BE0974293251"},
+    "BTI":   {"name": "British American Tobacco (ADR)",   "isin": "GB0002875804"},
+    "SHEL":  {"name": "Shell plc (ADR)",                  "isin": "GB00BP6MXD84"},
+    "TTE":   {"name": "TotalEnergies SE (ADR)",           "isin": "FR0000120271"},
+    "BP":    {"name": "BP plc (ADR)",                     "isin": "GB0007980591"},
+    "E":     {"name": "Eni S.p.A. (ADR)",                 "isin": "IT0003132476"},
+    "EQNR":  {"name": "Equinor ASA (ADR)",                "isin": "NO0010096985"},
+    "CRH":   {"name": "CRH plc",                          "isin": "IE0001827041"},
+    "AER":   {"name": "AerCap Holdings N.V.",             "isin": "NL0000687663"},
+    "RELX":  {"name": "RELX plc (ADR)",                   "isin": "GB00B2B0DG97"},
+    "RIO":   {"name": "Rio Tinto plc (ADR)",              "isin": "GB0007188757"},
+    # ── ETF - Sectoriales añadidos ───────────────────────────────────────────
+    "XLP":   {"name": "Consumer Staples Select SPDR",     "isin": "US81369Y3080"},
+    "XLU":   {"name": "Utilities Select Sector SPDR",     "isin": "US81369Y8865"},
+    "XLB":   {"name": "Materials Select Sector SPDR",     "isin": "N/D"},
+    "XLC":   {"name": "Communication Serv. Select SPDR",  "isin": "N/D"},
+    "XLRE":  {"name": "Real Estate Select Sector SPDR",   "isin": "N/D"},
+    # ── ETF - Europa ─────────────────────────────────────────────────────────
+    "VGK":   {"name": "Vanguard FTSE Europe ETF",         "isin": "US9220428588"},
+    "EZU":   {"name": "iShares MSCI Eurozone ETF",        "isin": "US4642866085"},
+    "FEZ":   {"name": "SPDR Euro Stoxx 50 ETF",           "isin": "US78463X2027"},
+    "IEUR":  {"name": "iShares Core MSCI Europe ETF",     "isin": "N/D"},
+    "HEDJ":  {"name": "WisdomTree Europe Hedged Equity",  "isin": "N/D"},
+    "EWG":   {"name": "iShares MSCI Germany ETF",         "isin": "US4642868065"},
+    "EWQ":   {"name": "iShares MSCI France ETF",          "isin": "N/D"},
+    "EWP":   {"name": "iShares MSCI Spain ETF",           "isin": "N/D"},
+    "EWU":   {"name": "iShares MSCI United Kingdom ETF",  "isin": "N/D"},
+    "EWL":   {"name": "iShares MSCI Switzerland ETF",     "isin": "N/D"},
+    # ── ETF - Dividendos & Factor ───────────────────────────────────────────
+    "SCHD":  {"name": "Schwab US Dividend Equity ETF",    "isin": "US8085247976"},
+    "VIG":   {"name": "Vanguard Dividend Appreciation",   "isin": "US9219088443"},
+    "DGRO":  {"name": "iShares Core Dividend Growth ETF", "isin": "N/D"},
+    "MTUM":  {"name": "iShares MSCI USA Momentum ETF",    "isin": "N/D"},
+    "QUAL":  {"name": "iShares MSCI USA Quality ETF",     "isin": "N/D"},
+    "USMV":  {"name": "iShares MSCI USA Min Vol ETF",     "isin": "N/D"},
+    "COWZ":  {"name": "Pacer US Cash Cows 100 ETF",       "isin": "N/D"},
 }
 
 
@@ -450,6 +611,48 @@ def get_stock_info(symbol: str) -> dict:
 ETF_SYMBOLS: set = {
     s for symbols in ETF_UNIVERSE.values() for s in symbols
 }
+
+# ─────────────────────────────────────────────
+#  REGIONES
+# ─────────────────────────────────────────────
+# Empresas europeas (vía ADR / listado US) y ETFs con exposición europea.
+# Todo cotiza en NYSE/NASDAQ, por lo que sigue siendo compatible con N26.
+
+EUROPE_SYMBOLS: set = {
+    # Tech
+    "ASML", "SAP", "STM", "ARM", "NOK", "ERIC", "LOGI",
+    # Financials
+    "SAN", "BBVA", "ING", "UBS", "HSBC", "BCS", "DB", "LYG",
+    # Healthcare
+    "NVO", "AZN", "NVS", "SNY", "GSK", "ALC", "ARGX", "BNTX",
+    # Consumer
+    "RACE", "STLA", "FLUT", "RYAAY", "UL", "DEO", "BUD", "BTI",
+    # Energy
+    "SHEL", "TTE", "BP", "E", "EQNR",
+    # Industrials / Materials
+    "CRH", "AER", "RELX", "RIO",
+    # Ya existentes en el universo con sede europea
+    "SPOT",
+    # ETFs de exposición europea
+    "VGK", "EZU", "FEZ", "IEUR", "HEDJ", "EWG", "EWQ", "EWP", "EWU", "EWL",
+}
+
+CANADA_SYMBOLS: set = {"CCJ", "NXE", "DNN"}
+
+
+def get_region(symbol: str) -> str:
+    """Retorna la región de un símbolo: 'Europa', 'Canadá' o 'USA'."""
+    if symbol in EUROPE_SYMBOLS:
+        return "Europa"
+    if symbol in CANADA_SYMBOLS:
+        return "Canadá"
+    return "USA"
+
+
+def get_europe_symbols() -> list:
+    """Retorna los símbolos con exposición europea (ADRs + ETFs)."""
+    return [s for s in get_all_symbols() if s in EUROPE_SYMBOLS]
+
 
 def is_etf(symbol: str) -> bool:
     """Retorna True si el símbolo es un ETF"""

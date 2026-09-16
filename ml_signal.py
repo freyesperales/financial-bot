@@ -106,11 +106,13 @@ def _result_to_features(
     }
     if regime:
         sig = regime.get("signals", {})
+        # market_regime publica la pendiente como 'sma200_slope_pct'
+        _slope = sig.get("sma200_slope_pct", sig.get("slope"))
         reg_signals = {
             "spy_above_sma200": float(int(bool(sig.get("above_sma200", False)))),
-            "spy_ret_20d":      float(sig.get("ret_20d", np.nan) or np.nan),
-            "spy_slope_20d":    float(sig.get("slope", np.nan) or np.nan),
-            "regime_score":     float(regime.get("score", np.nan) or np.nan),
+            "spy_ret_20d":      float(sig.get("ret_20d") if sig.get("ret_20d") is not None else np.nan),
+            "spy_slope_20d":    float(_slope if _slope is not None else np.nan),
+            "regime_score":     float(regime.get("score") if regime.get("score") is not None else np.nan),
         }
 
     return {
@@ -125,7 +127,9 @@ def _result_to_features(
         # indicadores raw
         "rsi":                _f("rsi"),
         "atr_pct":            _f("atr_pct"),
-        "vol_ratio":          _f("vol_ratio"),
+        # El modelo entrena con vol/MA20 ('vol_ratio_20' en el result row);
+        # el 'vol_ratio' del row es MA7/MA60 y solo se usa como fallback.
+        "vol_ratio":          _f("vol_ratio_20") if row.get("vol_ratio_20") is not None else _f("vol_ratio"),
         "bb_position":        _f("bb_position"),
         "change_5d":          _f("change_5d"),
         "change_20d":         _f("change_20d"),
@@ -235,6 +239,8 @@ def enrich_ml_signals(
     # ── Inferencia batch ──────────────────────────────────────────────────────
     try:
         probs = model.predict(X)
+        from ml_model import apply_calibration
+        probs = apply_calibration(probs, cv_info)
     except Exception as e:
         log.error("ml_signal: error en model.predict: %s", e)
         for r in results:
