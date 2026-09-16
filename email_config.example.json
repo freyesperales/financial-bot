@@ -1,0 +1,8 @@
+{
+  "_comentario": "Para activar el envío por correo: copia este archivo como email_config.json y rellena tus datos SMTP. Con Gmail usa una 'contraseña de aplicación' (myaccount.google.com/apppasswords), nunca tu contraseña normal. Si email_config.json no existe, el informe solo se genera como PDF local.",
+  "smtp_host": "smtp.gmail.com",
+  "smtp_port": 587,
+  "user": "tu_correo@gmail.com",
+  "password": "xxxx xxxx xxxx xxxx",
+  "to": "francisco@laura.lat"
+}

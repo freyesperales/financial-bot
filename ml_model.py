@@ -222,6 +222,8 @@ def train_model(
 
     fold_results: list[dict] = []
     best_iterations: list[int] = []
+    oos_preds:  list[np.ndarray] = []   # predicciones OOS acumuladas para calibración
+    oos_labels: list[np.ndarray] = []
 
     for fold_i, (train_idx, test_idx) in enumerate(cv.split(dates)):
         X_tr, X_te = X[train_idx], X[test_idx]
@@ -253,6 +255,8 @@ def train_model(
         preds  = fold_model.predict(X_te)
         auc    = float(roc_auc_score(y_te, preds))
         best_n = fold_model.best_iteration
+        oos_preds.append(np.asarray(preds))
+        oos_labels.append(y_te)
 
         fold_results.append({
             "fold":           fold_i + 1,
@@ -299,7 +303,70 @@ def train_model(
         "n_samples":      int(len(df)),
         "n_features":     int(len(feature_cols)),
     }
+
+    # ── Calibración isotónica sobre predicciones OOS acumuladas ──────────────
+    # Las probabilidades crudas de LightGBM no están calibradas: un 0.7 no
+    # implica 70% de aciertos históricos. La isotónica mapea prob → frecuencia
+    # empírica OOS, así ml_prob es interpretable y comparable entre reentrenos.
+    calibration = _fit_isotonic_calibration(
+        np.concatenate(oos_preds), np.concatenate(oos_labels).astype(float)
+    )
+    if calibration is not None:
+        cv_info["calibration"] = calibration
+
     return final_model, cv_info
+
+
+def _fit_isotonic_calibration(
+    preds: np.ndarray, labels: np.ndarray, min_samples: int = 100
+) -> Optional[dict]:
+    """
+    Ajusta regresión isotónica prob_cruda → frecuencia empírica sobre las
+    predicciones OOS de todos los folds. Devuelve dict serializable con los
+    nodos de la función escalonada y métricas Brier antes/después, o None si
+    hay pocas muestras.
+    """
+    if len(preds) < min_samples or len(np.unique(labels)) < 2:
+        log.warning("Calibración omitida: %d muestras OOS (mínimo %d)",
+                    len(preds), min_samples)
+        return None
+    try:
+        from sklearn.isotonic import IsotonicRegression
+        from sklearn.metrics import brier_score_loss
+    except ImportError:
+        return None
+
+    iso = IsotonicRegression(y_min=0.0, y_max=1.0, out_of_bounds="clip")
+    iso.fit(preds, labels)
+
+    brier_raw = float(brier_score_loss(labels, np.clip(preds, 0, 1)))
+    brier_cal = float(brier_score_loss(labels, iso.predict(preds)))
+
+    log.info("Calibración isotónica: Brier %.4f → %.4f (%d muestras OOS)",
+             brier_raw, brier_cal, len(preds))
+    return {
+        "method":     "isotonic",
+        "x":          [round(float(v), 6) for v in iso.X_thresholds_],
+        "y":          [round(float(v), 6) for v in iso.y_thresholds_],
+        "brier_raw":  round(brier_raw, 4),
+        "brier_cal":  round(brier_cal, 4),
+        "n_oos":      int(len(preds)),
+    }
+
+
+def apply_calibration(probs, cv_info: Optional[dict]):
+    """
+    Aplica la calibración guardada en cv_info a probabilidades crudas.
+    Acepta escalar o array; si no hay calibración devuelve la entrada intacta.
+    """
+    cal = (cv_info or {}).get("calibration")
+    if not cal or not cal.get("x"):
+        return probs
+    x = np.asarray(cal["x"], dtype=float)
+    y = np.asarray(cal["y"], dtype=float)
+    scalar = np.isscalar(probs)
+    p = np.interp(np.atleast_1d(np.asarray(probs, dtype=float)), x, y)
+    return float(p[0]) if scalar else p
 
 
 # ── Evaluación OOS ────────────────────────────────────────────────────────────
@@ -353,16 +420,19 @@ def evaluate_oos(
 
 # ── Inferencia ────────────────────────────────────────────────────────────────
 
-def predict_proba(model, features: dict, feature_cols: list[str]) -> float:
+def predict_proba(model, features: dict, feature_cols: list[str],
+                  cv_info: Optional[dict] = None) -> float:
     """
     Probabilidad de que el retorno forward 20d supere el umbral.
 
     features     : dict {feature_name → valor} (NaN si no disponible)
     feature_cols : orden de features que espera el modelo
+    cv_info      : si incluye "calibration", la probabilidad se calibra
     Retorna float en [0, 1].
     """
     x = np.array([[features.get(c, np.nan) for c in feature_cols]], dtype=np.float32)
-    return float(model.predict(x)[0])
+    raw = float(model.predict(x)[0])
+    return float(apply_calibration(raw, cv_info))
 
 
 # ── Feature importance ────────────────────────────────────────────────────────

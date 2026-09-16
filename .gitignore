@@ -55,3 +55,15 @@ ia_test.json
 # ── Archivos de señales viejos ────────────────────────────────────────────────
 señales.csv
 resumen_diario.csv
+
+# Informe bi-semanal
+email_config.json
+informes/
+tracking/
+
+# Reportes generados (salidas del screener/portafolio, no se versionan)
+SCREENER_CONSOLIDADO*.md
+PORTFOLIO_*.md
+TOP50_ACCIONES_*.md
+REPORTE_INVERSIONES_*.md
+analisis_completo_*.csv

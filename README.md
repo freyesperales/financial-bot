@@ -2,7 +2,7 @@
 
 > Analizador técnico de acciones para la cartera N26 — escritorio Windows con IA integrada
 
-Desktop app en Python/Tkinter para análisis técnico de ~160 acciones y ETFs de NYSE/NASDAQ compatibles con la corredora N26. Combina un sistema de scoring multifactorial, optimización de portafolio, backtesting y un modelo predictivo LightGBM.
+Desktop app en Python/Tkinter para análisis técnico de ~228 acciones y ETFs de NYSE/NASDAQ compatibles con la corredora N26 — incluyendo ~40 empresas europeas vía ADR y ETFs de exposición europea. Combina un sistema de scoring multifactorial, optimización de portafolio, backtesting, un modelo predictivo LightGBM con probabilidades calibradas y un screener consolidado por región.
 
 ---
 
@@ -24,6 +24,7 @@ Desktop app en Python/Tkinter para análisis técnico de ~160 acciones y ETFs de
 ### Modelo ML (LightGBM)
 - Dataset con 27 features: subscores técnicos + macro SPY + sector-relativas + fundamentales lagged
 - **Purged Walk-Forward CV** (López de Prado, Cap. 7) — sin lookahead en datos financieros de panel
+- **Calibración isotónica** de probabilidades sobre predicciones OOS (Brier score reportado antes/después) — `ml_prob` es interpretable como frecuencia empírica
 - Señal ML integrada como ±1 punto en el scoring de confianza
 - Comparación Sharpe OOS: modelo vs reglas vs buy-and-hold
 - Pestaña dedicada con gráfico de feature importance y métricas CV por fold
@@ -92,6 +93,12 @@ pytest -q
 
 # Generar reporte de texto (sin GUI)
 python generate_investment_report.py
+
+# Screener consolidado multi-factor por región (usa el último análisis)
+python screener.py --cache
+
+# Descarga batch no interactiva (nuevos símbolos + refresco)
+python update_universe_data.py --refresh
 ```
 
 ### Flujo recomendado

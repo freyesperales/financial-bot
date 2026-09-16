@@ -17,6 +17,25 @@ python optimize_backtest.py
 # Generate a text report (non-GUI)
 python generate_investment_report.py
 
+# Consolidated multi-factor screener from the last analysis (non-GUI)
+# Default horizon is "6m" (6-month returns: medium-term momentum dominates);
+# use --horizon 20d for the short-term timing profile.
+python screener.py --cache
+
+# Full headless pipeline: retrain ML (--train) + analyze + screener.
+# --horizon 6m trains the model on a 126-trading-day > +8% target with
+# 130-day purge; --horizon 20d uses the original 20d > +3% target.
+python run_analysis_headless.py --train --horizon 6m
+
+# Bi-weekly report with prediction tracking (PDF via Edge headless + optional email)
+python weekly_report.py [--no-ai] [--no-email] [--open]
+
+# Portfolio construction from the screener top (MV Ledoit-Wolf + ERC, VaR, stress)
+python build_portfolio.py --horizon 6m
+
+# Batch-download history for new symbols / refresh existing (non-interactive)
+python update_universe_data.py --refresh
+
 # Install dependencies
 pip install -r requirements.txt
 
@@ -33,7 +52,7 @@ No build step. The test suite (added in stage 0 of `PROGRESS.md`) lives in `test
 
 ## Architecture
 
-This is a Windows desktop app (tkinter) for technical analysis of ~160 NYSE/NASDAQ stocks and ETFs compatible with the N26 brokerage.
+This is a Windows desktop app (tkinter) for technical analysis of ~228 NYSE/NASDAQ stocks and ETFs compatible with the N26 brokerage. The universe includes ~40 European companies via US-listed ADRs and Europe-exposure ETFs; `stock_universe.get_region(sym)` returns "Europa" / "USA" / "Canadá".
 
 ### Module map
 
@@ -49,6 +68,10 @@ This is a Windows desktop app (tkinter) for technical analysis of ~160 NYSE/NASD
 | `backtester.py` (`Backtester`) | Simulates the voting-based entry strategy on historical data from the DB. Requires data to be downloaded first. |
 | `optimize_backtest.py` | Interactive CLI that grid-searches strategy parameters using `Backtester`. |
 | `generate_investment_report.py` | Non-GUI Markdown report generator. Uses `StockAnalyzer` output. |
+| `screener.py` | Consolidated multi-factor screener with horizon profiles (`HORIZON_WEIGHTS`): "6m" (default — medium-term momentum 25%, risk 20%, fundamentals 15%) and "20d" (short-term technical 35%). Merges total_score, momentum_6m, confidence, calibrated ml_prob, fundamentals, RS and risk into one 0-100 `screener_score`, ranked by region (USA/Europa) and type. CLI: `python screener.py --cache [--horizon 6m|20d]`. |
+| `update_universe_data.py` | Non-interactive batch downloader: full history for symbols missing from the DB, `--refresh` to top up existing ones. |
+| `weekly_report.py` | Bi-weekly PDF report with prediction tracking: snapshots each run's top-20 to `tracking/predictions_log.csv`, evaluates past snapshots vs SPY ("¿se cumplen las predicciones?"), rule-based interpretation + optional AI commentary via `claude -p`, HTML→PDF via Edge headless into `informes/`. Optional SMTP email if `email_config.json` exists (template: `email_config.example.json`). Scheduled via Windows Task Scheduler task **FinancialBot-Informe-6m** (Mon & Fri 12:00, runs `run_informe.bat`: refresh data → analyze → report). |
+| `build_portfolio.py` | Converts the screener top-N into portfolio weights: correlation dedup (>0.92), MV (Ledoit-Wolf, score tilt) + ERC with name/sector caps, VaR-95 and stress tests (COVID-2020, Bear-2022). |
 
 ### Key data flow
 
